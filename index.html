@@ -3,22 +3,494 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HAMM Dashboard</title>
+    <title>HAMIM Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --secondary: #f8f9fa;
+            --accent: #7209b7;
+            --text: #212529;
+            --text-light: #6c757d;
+            --card-bg: #ffffff;
+            --sidebar-bg: #2b2d42;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            background-color: var(--secondary);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 20px 0;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .menu-section {
+            margin-bottom: 30px;
+        }
+
+        .menu-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 0 20px 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .menu-items {
+            list-style: none;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item.active {
+            background: var(--primary);
+            border-left: 4px solid var(--accent);
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .header {
+            background-color: var(--card-bg);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h2 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 30px;
+            max-width: 1200px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .icon-db {
+            background: var(--primary);
+        }
+
+        .icon-app {
+            background: var(--warning);
+        }
+
+        .icon-tools {
+            background: var(--success);
+        }
+
+        .icon-users {
+            background: var(--accent);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-desc {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        /* Chart Section */
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chart-actions button {
+            background: #f0f2f5;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .chart-actions button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .chart {
+            height: 300px;
+            position: relative;
+        }
+
+        .bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 100%;
+            padding: 0 20px;
+        }
+
+        .bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            width: 40px;
+        }
+
+        .bar {
+            width: 30px;
+            border-radius: 4px 4px 0 0;
+            background: var(--primary);
+            transition: height 0.5s;
+        }
+
+        .bar-label {
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .y-axis {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 0;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .grid-line {
+            position: absolute;
+            left: 40px;
+            right: 0;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-light);
+            font-size: 14px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 30px;
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+            background-color: var(--card-bg);
+            padding: 15px;
+            justify-content: space-around;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--primary);
+        }
+
+        .mobile-nav-item i {
+            font-size: 20px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .mobile-nav {
+                display: flex;
+            }
+            
+            .content {
+                padding-bottom: 80px; /* Space for mobile nav */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .header h2 {
+                font-size: 20px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .chart {
+                height: 250px;
+            }
+            
+            .bars {
+                padding: 0 10px;
+            }
+            
+            .bar-container {
+                width: 30px;
+            }
+            
+            .bar {
+                width: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .user-info {
+                align-self: flex-end;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .chart-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .chart-actions button {
+                flex: 1;
+                text-align: center;
+            }
+            
+            .bars {
+                padding: 0 5px;
+            }
+            
+            .bar-container {
+                width: 25px;
+            }
+            
+            .bar {
+                width: 18px;
+            }
+            
+            .bar-label {
+                font-size: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="logo">
-            <h1><i class="fas fa-database"></i> <span>HAMIM</span></h1>
+            <h1>HAMIM</h1>
         </div>
         
         <div class="menu-section">
-            <div class="menu-title">Main</div>
+            <div class="menu-title">Status</div>
             <ul class="menu-items">
                 <li class="menu-item active">
-                    <i class="fas fa-home"></i>
+                    <i class="fas fa-chart-bar"></i>
                     <span>Dashboard</span>
                 </li>
                 <li class="menu-item">
@@ -47,14 +519,12 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Analytics</span>
                 </li>
-            </ul>
-        </div>
-        
-        <div class="menu-section">
-            <div class="menu-title">Support</div>
-            <ul class="menu-items">
                 <li class="menu-item">
                     <i class="fas fa-question-circle"></i>
+                    <span>Support</span>
+                </li>
+                <li class="menu-item">
+                    <i class="fas fa-graduation-cap"></i>
                     <span>Tutorials</span>
                 </li>
                 <li class="menu-item">
@@ -72,90 +542,224 @@
     <!-- Main Content -->
     <div class="main-content">
         <div class="header">
-            <h2>Dashboard Overview</h2>
+            <div>
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>Dashboard Overview</h2>
+            </div>
             <div class="user-info">
-                <div class="user-avatar">JD</div>
                 <div>
-                    <div style="font-weight: 600;">John Doe</div>
-                    <div style="font-size: 12px; color: var(--gray);">Administrator</div>
+                    <div style="font-weight: 600;">Ghan Muhammad</div>
+                    <div style="font-size: 12px; color: var(--text-light);">Autonomous</div>
                 </div>
+                <div class="user-avatar">GM</div>
             </div>
         </div>
-        
-        <!-- Stat Cards -->
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="card-header">
-                    <div class="card-title">Database</div>
-                    <div class="card-icon icon-db">
-                        <i class="fas fa-database"></i>
+
+        <div class="content">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="card-header">
+                        <div class="card-title">Database</div>
+                        <div class="card-icon icon-db">
+                            <i class="fas fa-database"></i>
+                        </div>
                     </div>
+                    <div class="stat-value">50.050</div>
+                    <div class="stat-desc">Total User</div>
                 </div>
-                <div class="stat-value">50.050</div>
-                <div class="stat-desc">Total User</div>
+                
+                <div class="stat-card">
+                    <div class="card-header">
+                        <div class="card-title">Apps & Content</div>
+                        <div class="card-icon icon-app">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">127</div>
+                    <div class="stat-desc">User HAMIM (Dalam 7 Hari Terakhir)</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="card-header">
+                        <div class="card-title">Activation</div>
+                        <div class="card-icon icon-tools">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">63.123</div>
+                    <div class="stat-desc">Node Aktivasi Yamida</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="card-header">
+                        <div class="card-title">Active Users</div>
+                        <div class="card-icon icon-users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-desc">Pengguna Aktif Lingkungan</div>
+                </div>
             </div>
             
-            <div class="stat-card">
-                <div class="card-header">
-                    <div class="card-title">Apps & Content</div>
-                    <div class="card-icon icon-app">
-                        <i class="fas fa-mobile-alt"></i>
+            <!-- Chart Section -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">User Activity - 2024</div>
+                    <div class="chart-actions">
+                        <button class="active">Monthly</button>
+                        <button>Quarterly</button>
+                        <button>Yearly</button>
                     </div>
                 </div>
-                <div class="stat-value">127</div>
-                <div class="stat-desc">User HAMIM Dalam 7 Hari Terakhir</div>
+                <div class="chart">
+                    <div class="y-axis">
+                        <span>120</span>
+                        <span>90</span>
+                        <span>60</span>
+                        <span>30</span>
+                        <span>0</span>
+                    </div>
+                    <div class="bars" id="chartBars">
+                        <!-- Bars will be generated by JavaScript -->
+                    </div>
+                </div>
             </div>
             
-            <div class="stat-card">
-                <div class="card-header">
-                    <div class="card-title">Tools</div>
-                    <div class="card-icon icon-tools">
-                        <i class="fas fa-tools"></i>
-                    </div>
-                </div>
-                <div class="stat-value">63.123</div>
-                <div class="stat-desc">Kode Aktivasi Tersedia</div>
+            <div class="footer">
+                <p>HAMIM Dashboard © 2024 - All rights reserved</p>
             </div>
-            
-            <div class="stat-card">
-                <div class="card-header">
-                    <div class="card-title">Active Users</div>
-                    <div class="card-icon icon-tutorials">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                </div>
-                <div class="stat-value">12</div>
-                <div class="stat-desc">Live Active Users Count</div>
-            </div>
-        </div>
-        
-        <!-- Chart Section -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">User Activity - 2024</div>
-                <div class="chart-actions">
-                    <button class="active">Monthly</button>
-                    <button>Quarterly</button>
-                    <button>Yearly</button>
-                </div>
-            </div>
-            <div class="chart">
-                <div class="y-axis">
-                    <span>120</span>
-                    <span>90</span>
-                    <span>60</span>
-                    <span>30</span>
-                    <span>0</span>
-                </div>
-                <div class="bars" id="chartBars">
-                </div>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p>HAMIM Dashboard &copy; 2024 - All rights reserved</p>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav">
+        <div class="mobile-nav-item active">
+            <i class="fas fa-chart-bar"></i>
+            <span>Dashboard</span>
+        </div>
+        <div class="mobile-nav-item">
+            <i class="fas fa-database"></i>
+            <span>Database</span>
+        </div>
+        <div class="mobile-nav-item">
+            <i class="fas fa-mobile-alt"></i>
+            <span>Apps</span>
+        </div>
+        <div class="mobile-nav-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </div>
+    </div>
+
+    <script>
+        // Generate random data for the chart
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const chartBars = document.getElementById('chartBars');
+        
+        // Generate bars with random heights
+        months.forEach(month => {
+            const barContainer = document.createElement('div');
+            barContainer.className = 'bar-container';
+            
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            // Random height between 20% and 95%
+            const height = Math.floor(Math.random() * 75) + 20;
+            bar.style.height = `${height}%`;
+            
+            // Add some color variation
+            if (height > 80) {
+                bar.style.background = 'var(--warning)';
+            } else if (height > 60) {
+                bar.style.background = 'var(--accent)';
+            } else if (height > 40) {
+                bar.style.background = 'var(--success)';
+            }
+            
+            const label = document.createElement('div');
+            label.className = 'bar-label';
+            label.textContent = month;
+            
+            barContainer.appendChild(bar);
+            barContainer.appendChild(label);
+            chartBars.appendChild(barContainer);
+        });
+        
+        // Add grid lines
+        for (let i = 1; i <= 4; i++) {
+            const gridLine = document.createElement('div');
+            gridLine.className = 'grid-line';
+            gridLine.style.top = `${i * 25}%`;
+            document.querySelector('.chart').appendChild(gridLine);
+        }
+        
+        // Chart period buttons functionality
+        const periodButtons = document.querySelectorAll('.chart-actions button');
+        periodButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                periodButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // In a real app, this would update the chart data
+                // For this demo, we'll just regenerate random heights
+                const bars = document.querySelectorAll('.bar');
+                bars.forEach(bar => {
+                    const height = Math.floor(Math.random() * 75) + 20;
+                    bar.style.height = `${height}%`;
+                    
+                    // Update colors based on new height
+                    if (height > 80) {
+                        bar.style.background = 'var(--warning)';
+                    } else if (height > 60) {
+                        bar.style.background = 'var(--accent)';
+                    } else if (height > 40) {
+                        bar.style.background = 'var(--success)';
+                    } else {
+                        bar.style.background = 'var(--primary)';
+                    }
+                });
+            });
+        });
+        
+        // Menu item click functionality
+        const menuItems = document.querySelectorAll('.menu-item');
+        const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+        
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                menuItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        mobileNavItems.forEach(item => {
+            item.addEventListener('click', function() {
+                mobileNavItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Toggle sidebar on mobile
+        const menuToggle = document.querySelector('.menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 1024 && 
+                !sidebar.contains(event.target) && 
+                !menuToggle.contains(event.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>
